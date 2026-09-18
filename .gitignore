@@ -1,0 +1,26 @@
+# Environment secrets (CRITICAL: Never commit API keys!)
+.env
+*.env.local
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Local runtime data & generated images
+data/*.db
+data/*.sqlite
+static/outputs/*
+!static/outputs/.gitkeep
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

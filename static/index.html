@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AetherGen — AI Image & Game Asset Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+</head>
+<body class="dark-theme">
+  <!-- Background Glow Accents -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <div class="app-wrapper">
+    <!-- Navigation / Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-logo">
+          <span class="logo-icon">⚡</span>
+          <div class="brand-text">
+            <span class="brand-title">AetherGen</span>
+            <span class="brand-subtitle">Real AI Image & Asset Studio</span>
+          </div>
+        </div>
+
+        <nav class="studio-nav">
+          <button id="navStandard" class="nav-tab active" data-mode="standard">
+            <svg class="tab-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            Standard AI Studio
+          </button>
+          <button id="navGame" class="nav-tab" data-mode="game">
+            <svg class="tab-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+              <path d="M6 12h4m-2-2v4m9-3h.01m3 2h.01"></path>
+            </svg>
+            Game Assets & Sprites
+            <span class="badge-tag">GameDev</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="header-right">
+        <div class="key-status-indicator" id="keyStatusBadge" title="Click to manage API keys">
+          <span class="status-dot"></span>
+          <span class="status-text" id="statusSummary">Checking Keys...</span>
+        </div>
+        <button id="btnOpenKeyModal" class="btn-secondary btn-compact" title="Configure API Keys">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          API Keys (.env)
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="main-layout">
+      <!-- Left Panel: Controls & Inputs -->
+      <section class="control-panel">
+        
+        <!-- Provider & Synced Model Bar -->
+        <div class="glass-card card-provider">
+          <div class="section-title-row">
+            <span class="card-icon">🔮</span>
+            <h2 class="card-title">AI Engine & Model</h2>
+            <button id="btnSyncModels" class="btn-refresh" title="Query Provider API to Sync Available Models">
+              <svg id="syncIcon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              <span>Sync Models</span>
+            </button>
+          </div>
+
+          <div class="provider-selector-grid">
+            <button type="button" class="provider-btn active" data-provider="openai">
+              <span class="p-icon">🟢</span>
+              <div class="p-info">
+                <span class="p-name">OpenAI</span>
+                <span class="p-sub">DALL-E 3 / DALL-E 2</span>
+              </div>
+            </button>
+            <button type="button" class="provider-btn" data-provider="gemini">
+              <span class="p-icon">🔵</span>
+              <div class="p-info">
+                <span class="p-name">Google Gemini</span>
+                <span class="p-sub">Imagen 3 Generation</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- Dynamic Model Dropdown -->
+          <div class="form-group model-group">
+            <div class="label-row">
+              <label for="modelSelect">Synced Active Model</label>
+              <span class="model-count-tag" id="modelsCountBadge">Checking...</span>
+            </div>
+            <select id="modelSelect" class="form-select">
+              <option value="">Syncing live models...</option>
+            </select>
+          </div>
+
+          <!-- Quick API Key Bar (Stored in .env) -->
+          <div class="form-group key-group">
+            <div class="label-row">
+              <label for="currentApiKey">Active Provider API Key</label>
+              <span class="env-saved-indicator" id="envIndicator">💾 saved in .env</span>
+            </div>
+            <div class="key-input-wrapper">
+              <input type="password" id="currentApiKey" class="form-input code-font" placeholder="Enter key to sync models or save...">
+              <button type="button" id="btnToggleKeyVisibility" class="btn-icon" title="Toggle visibility">👁️</button>
+              <button type="button" id="btnSaveActiveKey" class="btn-accent-sm" title="Save key directly to .env">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode-Specific: Dedicated Game Assets Controls -->
+        <div id="gameAssetConfigCard" class="glass-card game-card-highlight hidden">
+          <div class="section-title-row">
+            <span class="card-icon">🎮</span>
+            <h2 class="card-title">Game Asset Pipeline</h2>
+            <span class="game-tag">Sprite Studio</span>
+          </div>
+
+          <p class="section-desc">Select the asset archetype. The pipeline automatically tunes framing, solid neutral backdrops, and isolation tokens.</p>
+
+          <div class="game-asset-grid" id="gameAssetTypesGrid">
+            <!-- Populated via JS -->
+          </div>
+
+          <div class="game-options-row">
+            <label class="toggle-checkbox">
+              <input type="checkbox" id="autoRemoveBgCheckbox" checked>
+              <span class="checkbox-slider"></span>
+              <span class="checkbox-label">
+                <strong>Auto-Extract Transparent PNG</strong>
+                <small>Runs rembg on output to create clean sprite alpha</small>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Prompt Studio Card -->
+        <div class="glass-card card-prompt">
+          <div class="section-title-row">
+            <span class="card-icon">✍️</span>
+            <h2 class="card-title">Prompt Workshop</h2>
+            <div class="prompt-action-pills">
+              <button id="btnAiEnhancePrompt" class="btn-magic" title="Expand and detail prompt with AI">
+                <span class="magic-spark">✨</span> AI Enhance
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <textarea id="promptInput" class="form-textarea" rows="4" placeholder="Describe the image you want to create... e.g. 'A cybernetic neon samurai standing in a misty rain alley'"></textarea>
+          </div>
+
+          <!-- "Add to Prompt" Chips Section -->
+          <div class="add-to-prompt-section">
+            <div class="chips-header">
+              <span class="chips-title">⚡ Quick Add-to-Prompt Modifiers</span>
+              <span class="chips-hint">Click tags to append directly into prompt</span>
+            </div>
+
+            <!-- Categories Tabs -->
+            <div class="chip-category-tabs" id="chipCategoryTabs">
+              <button class="chip-tab active" data-category="Lighting">Lighting</button>
+              <button class="chip-tab" data-category="Art Style">Art Style</button>
+              <button class="chip-tab" data-category="Camera & View">Camera</button>
+              <button class="chip-tab" data-category="Engine & Quality">Engines</button>
+            </div>
+
+            <!-- Chips Container -->
+            <div class="chips-container" id="chipsContainer">
+              <!-- Dynamically populated from backend -->
+            </div>
+          </div>
+
+          <!-- Negative Prompt Accordion -->
+          <details class="negative-prompt-drawer">
+            <summary class="drawer-summary">
+              <span>🚫 Negative Prompt (What to exclude)</span>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </summary>
+            <div class="drawer-content">
+              <input type="text" id="negativePromptInput" class="form-input" placeholder="e.g. blurry, distorted limbs, bad anatomy, text, watermark">
+            </div>
+          </details>
+
+          <!-- Generation Settings (Aspect Ratio, Quality) -->
+          <div class="settings-row">
+            <div class="setting-item">
+              <label class="setting-label">Aspect Ratio</label>
+              <div class="aspect-ratio-selector" id="aspectSelector">
+                <button type="button" class="aspect-btn active" data-aspect="1:1" title="Square (1:1)">
+                  <span class="aspect-box aspect-1-1"></span>
+                  <span class="aspect-text">1:1</span>
+                </button>
+                <button type="button" class="aspect-btn" data-aspect="16:9" title="Landscape (16:9)">
+                  <span class="aspect-box aspect-16-9"></span>
+                  <span class="aspect-text">16:9</span>
+                </button>
+                <button type="button" class="aspect-btn" data-aspect="9:16" title="Portrait (9:16)">
+                  <span class="aspect-box aspect-9-16"></span>
+                  <span class="aspect-text">9:16</span>
+                </button>
+                <button type="button" class="aspect-btn" data-aspect="4:3" title="Standard (4:3)">
+                  <span class="aspect-box aspect-4-3"></span>
+                  <span class="aspect-text">4:3</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="setting-item" id="qualityWrapper">
+              <label class="setting-label">Quality (DALL-E 3)</label>
+              <select id="qualitySelect" class="form-select select-compact">
+                <option value="standard" selected>Standard</option>
+                <option value="hd">HD (Ultra Detail)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Generate Action Button -->
+          <button id="btnGenerate" class="btn-generate-primary">
+            <div class="btn-inner">
+              <span class="btn-icon-spark">⚡</span>
+              <span id="btnGenerateText" class="btn-title">Generate Real Image</span>
+            </div>
+            <div class="btn-glow-bar"></div>
+          </button>
+        </div>
+      </section>
+
+      <!-- Right Panel: Preview & Studio Canvas -->
+      <section class="preview-panel">
+        
+        <!-- Live Viewport Card -->
+        <div class="glass-card viewport-card">
+          <!-- Viewport Header Toolbar -->
+          <div class="viewport-toolbar">
+            <div class="toolbar-left">
+              <span class="viewport-badge" id="viewportBadge">Canvas Ready</span>
+              <span class="info-pill" id="viewportInfo">No active generation</span>
+            </div>
+
+            <div class="toolbar-right">
+              <!-- View Mode Toggle (Normal vs Transparent Checkerboard) -->
+              <div class="view-toggle-group" id="viewModeToggleGroup">
+                <button id="btnViewOriginal" class="view-mode-btn active" title="Show Original Image">Original</button>
+                <button id="btnViewTransparent" class="view-mode-btn" title="Show Transparent Sprite (Checkerboard)" disabled>Sprite Alpha</button>
+              </div>
+
+              <!-- Action: Remove Background manually if not auto -->
+              <button id="btnManualRemoveBg" class="btn-secondary btn-compact" title="Remove Background using rembg" disabled>
+                🪄 Extract Alpha
+              </button>
+
+              <!-- Quick Top Download Buttons -->
+              <a id="btnTopDownloadOriginal" class="btn-download btn-compact hidden" href="#" download="ai_image.png" title="Download Image (PNG)">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Download</span>
+              </a>
+              <a id="btnTopDownloadTransparent" class="btn-download-sprite btn-compact hidden" href="#" download="sprite_transparent.png" title="Download Transparent Sprite (PNG)">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Download Sprite</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Viewport Display Canvas -->
+          <div class="viewport-stage" id="viewportStage">
+            <!-- Empty Placeholder State -->
+            <div class="stage-placeholder" id="stagePlaceholder">
+              <div class="placeholder-art">🎨</div>
+              <h3 class="placeholder-title">Ready for Creation</h3>
+              <p class="placeholder-sub">Sync your real API key, craft your prompt or choose a game asset sprite preset, and hit Generate.</p>
+              <div class="feature-bullets">
+                <span class="f-bullet">✓ Real Live APIs</span>
+                <span class="f-bullet">✓ Model Auto-Sync</span>
+                <span class="f-bullet">✓ rembg Sprite Isolation</span>
+                <span class="f-bullet">✓ Direct PNG Downloads</span>
+              </div>
+            </div>
+
+            <!-- Loading Spinner State -->
+            <div class="stage-loader hidden" id="stageLoader">
+              <div class="glowing-spinner"></div>
+              <div class="loader-status">
+                <h4 id="loaderTitle">Contacting AI Provider...</h4>
+                <p id="loaderSub">Synthesizing image data directly from provider endpoint</p>
+                <div class="timer-display" id="loaderTimer">0.0s</div>
+              </div>
+            </div>
+
+            <!-- Rendered Image Display -->
+            <div class="stage-image-container hidden" id="stageImageContainer">
+              <div class="image-wrapper" id="imageWrapper">
+                <img id="mainResultImage" class="rendered-image" alt="Generated AI Artwork" src="">
+                <div class="image-overlay-actions">
+                  <a id="overlayDownloadBtn" class="overlay-btn" href="#" download="ai_image.png" title="Download Full Resolution">
+                    📥 Download
+                  </a>
+                  <a id="overlayViewFullBtn" class="overlay-btn" href="#" target="_blank" title="Open Image in New Tab">
+                    🔍 View Full
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Viewport Footer Toolbar: Downloads & Copy -->
+          <div class="viewport-footer" id="viewportFooter">
+            <div class="footer-metadata">
+              <span id="metaPromptText" class="meta-prompt">No generation yet</span>
+            </div>
+
+            <div class="download-actions-row">
+              <button id="btnCopyPrompt" class="btn-secondary" title="Copy Prompt to Clipboard" disabled>
+                📋 Copy Prompt
+              </button>
+              <a id="btnDownloadOriginal" class="btn-download" href="#" download="ai_image.png" title="Download Full Quality PNG" style="pointer-events: none; opacity: 0.5;">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Download Image</span>
+              </a>
+              <a id="btnDownloadTransparent" class="btn-download-sprite hidden" href="#" download="sprite_transparent.png" title="Download Game Sprite Transparent PNG">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Download Sprite (PNG)</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Persistent Generation History Strip -->
+        <div class="glass-card card-history">
+          <div class="history-header">
+            <div class="history-title-group">
+              <span class="card-icon">🏛️</span>
+              <h3 class="history-title">Session History</h3>
+            </div>
+            <span class="history-count" id="historyCount">0 items</span>
+          </div>
+
+          <div class="history-grid" id="historyGrid">
+            <div class="history-empty">Your generated images and game sprites will appear here.</div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- API Key Management Modal -->
+  <div class="modal-overlay hidden" id="keyModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <span class="modal-icon">🔐</span>
+          <h3>API Keys Configuration (.env)</h3>
+        </div>
+        <button id="btnCloseKeyModal" class="btn-modal-close">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-intro">
+          Keys are saved directly into your project's local <code>.env</code> file. No mock data is used; requests connect directly to real AI endpoints.
+        </p>
+
+        <!-- OpenAI Form -->
+        <div class="key-field-block">
+          <div class="field-title">
+            <span>🟢 OpenAI API Key</span>
+            <span id="modalOpenAiStatus" class="field-badge">Not configured</span>
+          </div>
+          <div class="input-with-action">
+            <input type="password" id="modalOpenAiKey" class="form-input code-font" placeholder="sk-...">
+            <button id="btnSaveOpenAiModal" class="btn-accent-sm">Save</button>
+          </div>
+          <small class="field-help">Used for DALL-E 3, DALL-E 2, and AI prompt enhancement.</small>
+        </div>
+
+        <!-- Gemini Form -->
+        <div class="key-field-block">
+          <div class="field-title">
+            <span>🔵 Google Gemini API Key</span>
+            <span id="modalGeminiStatus" class="field-badge">Not configured</span>
+          </div>
+          <div class="input-with-action">
+            <input type="password" id="modalGeminiKey" class="form-input code-font" placeholder="AIzaSy...">
+            <button id="btnSaveGeminiModal" class="btn-accent-sm">Save</button>
+          </div>
+          <small class="field-help">Used for Imagen 3 generation and Gemini prompt expansion.</small>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="btnDoneKeyModal" class="btn-primary">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
