@@ -328,13 +328,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   function loadGenerationIntoStage(item) {
     if (!item) return;
     state.currentGeneration = item;
+    
+    // Unhide image container and hide loaders
     el.stagePlaceholder.classList.add('hidden');
     el.stageLoader.classList.add('hidden');
     el.stageImageContainer.classList.remove('hidden');
 
-    // Ensure image is displayed
-    el.mainResultImage.style.display = 'block';
-    el.mainResultImage.src = item.image_url;
+    // Add cache-busting timestamp to guarantee image loads fresh
+    const targetUrl = item.image_url ? `${item.image_url}?t=${Date.now()}` : '';
+
+    el.mainResultImage.onload = () => {
+      el.mainResultImage.style.display = 'block';
+      el.stageImageContainer.classList.remove('hidden');
+      el.stagePlaceholder.classList.add('hidden');
+      el.stageLoader.classList.add('hidden');
+    };
+    el.mainResultImage.onerror = () => {
+      console.warn('Image failed to load via relative URL, retrying with direct link...');
+      el.mainResultImage.src = item.image_url;
+    };
+    el.mainResultImage.src = targetUrl;
+
     el.viewportBadge.textContent = item.mode.startsWith('game_asset') ? 'Game Asset' : 'Image Render';
     el.viewportInfo.textContent = `${item.provider.toUpperCase()} • ${item.model} • ${item.aspect_ratio || '1:1'}`;
     el.metaPromptText.textContent = `"${item.prompt}"`;
@@ -390,13 +404,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function switchToViewMode(mode) {
     if (!state.currentGeneration) return;
+    const ts = Date.now();
     if (mode === 'transparent' && state.currentGeneration.transparent_url) {
-      el.mainResultImage.src = state.currentGeneration.transparent_url;
+      el.mainResultImage.src = `${state.currentGeneration.transparent_url}?t=${ts}`;
       el.viewportStage.classList.add('checkerboard');
       el.btnViewTransparent.classList.add('active');
       el.btnViewOriginal.classList.remove('active');
     } else {
-      el.mainResultImage.src = state.currentGeneration.image_url;
+      el.mainResultImage.src = `${state.currentGeneration.image_url}?t=${ts}`;
       el.viewportStage.classList.remove('checkerboard');
       el.btnViewOriginal.classList.add('active');
       el.btnViewTransparent.classList.remove('active');
